@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma de Apuestas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>Plataforma de Apuestas Deportivas</h1>
+
+    <!-- Filtros -->
+    <select id="sportFilter" class="form-select mb-4">
+        <option value="all">Todos los deportes</option>
+        <option value="futbol">Fútbol</option>
+        <option value="baloncesto">Baloncesto</option>
+    </select>
+
+    <!-- Tabla de eventos -->
+    <table id="eventsTable" class="table">
+        <thead>
+            <tr>
+                <th>Equipos</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Cuotas (1x2)</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Resumen de apuestas -->
+    <div class="bet-summary">
+        <h3>Resumen de Apuesta</h3>
+        <p id="betDetails"></p>
+    </div>
+
+    <!-- Botón para colocar apuesta -->
+    <div class="bet-container">
+        <input type="number" id="amount" placeholder="Monto de la apuesta" class="form-control mb-4">
+        <button id="placeBet" class="btn btn-primary">Colocar Apuesta</button>
+    </div>
+
+    <script>
+        // Cargar eventos desde el backend
+        async function loadEvents() {
+            const response = await fetch('http://localhost:3008/v1/api/events/fetch');
+            const data = await response.json();
+            console.log(data); // Verifica la estructura de la respuesta
+            if (Array.isArray(data.data)) {
+                displayEvents(data.data);
+            } else {
+                console.error('No se encontraron eventos en la respuesta:', data);
+            }
+        }
+
+        function displayEvents(events) {
+            const tableBody = document.getElementById('eventsTable').getElementsByTagName('tbody')[0];
+            tableBody.innerHTML = ''; // Limpiar tabla antes de agregar los eventos
+            events.forEach(event => {
+                const row = tableBody.insertRow();
+                row.innerHTML = `
+                    <td>${event.competitors[0].name} vs ${event.competitors[1].name}</td>
+                    <td>${new Date(event.startDate).toLocaleDateString()}</td>
+                    <td>${new Date(event.startDate).toLocaleTimeString()}</td>
+                   <td class="odds">
+    <button class="btn btn-odds" onclick="selectBet('${event.eventId}', '1')">${event.odds[2].value}</button>
+    <button class="btn btn-odds" onclick="selectBet('${event.eventId}', 'X')">${event.odds[0].value}</button>
+    <button class="btn btn-odds" onclick="selectBet('${event.eventId}', '2')">${event.odds[1].value}</button>
+</td>
+
+                `;
+            });
+        }
+
+        let selectedEvent = null;
+        let selectedResult = null;
+
+        function selectBet(eventId, result) {
+            selectedEvent = eventId;
+            selectedResult = result;
+            alert(`Evento seleccionado: ${eventId}, Resultado: ${result}`);
+        }
+
+        // Colocar apuesta y enviarla al backend
+        document.getElementById('placeBet').onclick = async function() {
+            if (!selectedEvent || !selectedResult) {
+                alert('Selecciona un evento y un resultado.');
+                return;
+            }
+            const amount = parseFloat(document.getElementById('amount').value);
+            if (isNaN(amount)) {
+                alert('Coloca un monto válido.');
+                return;
+            }
+
+            const betData = {
+                eventId: selectedEvent,
+                result: selectedResult,
+                amount: amount
+            };
+
+            try {
+                const response = await fetch('http://localhost:3008/v1/api/bets/place', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(betData)
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    const potentialWin = calculateWin(amount, selectedResult);
+                    document.getElementById('betDetails').textContent = `Apuesta de ${amount} en el resultado ${selectedResult}. Ganancia potencial: ${potentialWin}`;
+                    alert('Apuesta colocada con éxito!');
+                } else {
+                    alert('Error al colocar la apuesta: ' + data.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Hubo un problema con la conexión al servidor.');
+            }
+        };
+
+        function calculateWin(amount, result) {
+            const odds = { '1': 2.5, 'X': 3.0, '2': 2.2 }; // Ejemplo de cuotas
+            return amount * odds[result];
+        }
+
+        loadEvents();
+    </script>
+
+    <style>
+        .btn-odds {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            color: #333;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 5px;
+            margin: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-odds:hover {
+            background-color: #e9ecef;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004085;
+        }
+
+        .bet-summary {
+            margin-top: 20px;
+        }
+
+        .form-control {
+            width: 200px;
+        }
+    </style>
+</body>
+</html>

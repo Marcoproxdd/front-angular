@@ -1,0 +1,67 @@
+<div *ngIf="loading" class="loading">
+  <div class="spinner-border" role="status">
+    <span class="visually-hidden">Cargando...</span>
+  </div>
+</div>
+
+<div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+  {{ errorMessage }}
+</div>
+
+<div *ngIf="!loading && !errorMessage" class="container mt-5">
+  <h1 class="text-center mb-4">Eventos Deportivos</h1>
+
+  <div class="row">
+    <div *ngFor="let event of events" class="col-lg-4 col-md-6 mb-4">
+      <div class="card shadow-lg rounded">
+        <div class="card-body">
+          <h5 class="card-title text-primary">{{ event.sportEventName }} ({{ event.tournament }})</h5>
+          <p class="card-text">
+            <strong>{{ event.competitors[0].name }} vs {{ event.competitors[1].name }}</strong>
+            <br>
+            <small class="text-muted">Fecha: {{ event.startDate | date:'short' }}</small>
+          </p>
+
+          <div *ngIf="event.odds && event.odds.length > 0">
+            <h6 class="text-dark">Cuotas:</h6>
+            <div *ngFor="let odd of event.odds" class="d-flex justify-content-between align-items-center">
+              <label class="form-check-label d-flex align-items-center">
+                <input 
+                  type="radio" 
+                  name="odds" 
+                  class="form-check-input me-2"
+                  (change)="selectOdds(event, odd.type)"
+                  [checked]="selectedOdds === odd.type"
+                />
+                <span>{{ odd.type }}: {{ odd.value }} (Probabilidad: {{ odd.probability }}%)</span>
+              </label>
+            </div>
+          </div>
+
+          <div *ngIf="selectedEvent === event">
+            <form (submit)="placeBet($event)" class="mt-3">
+              <div class="input-group">
+                <span class="input-group-text" id="bet-amount">$</span>
+                <input 
+                  type="number" 
+                  class="form-control" 
+                  [(ngModel)]="betAmount" 
+                  name="betAmount" 
+                  placeholder="Monto de la apuesta" 
+                  min="1" 
+                  required
+                />
+              </div>
+              <button 
+                type="submit" 
+                class="btn btn-primary mt-3" 
+                [disabled]="!betAmount || !selectedOdds">
+                Realizar apuesta
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

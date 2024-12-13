@@ -1,0 +1,108 @@
+/* style.css */
+@import url('https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css');
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-top: 30px;
+}
+
+table {
+    margin: 0 auto;
+    width: 80%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+    border: 1px solid #000000;
+}
+
+th {
+    background-color: #007bff;
+    color: rgb(0, 0, 0);
+}
+
+td {
+    background-color: #fff;
+}
+
+#placeBet {
+    background-color: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    font-size: 16px;
+}
+
+#placeBet:hover {
+    background-color: #218838;
+}
+
+.bet-summary {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.bet-summary h3 {
+    color: #343a40;
+}
+
+.bet-summary p {
+    font-size: 18px;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Cuotas */
+.odds {
+    text-align: center;
+}
+
+.odds button {
+    padding: 10px 20px;
+    margin: 5px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #17a2b8;
+    color: white;
+}
+
+.odds button:hover {
+    background-color: #138496;
+}
+.btn-odds {
+    background-color: #f8f9fa;
+    border: 1px solid #ddd;
+    color: #333;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    margin: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.btn-odds:hover {
+    background-color: #e9ecef;
+    cursor: pointer;
+}
